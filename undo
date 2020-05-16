@@ -1,0 +1,29 @@
+#!/bin/bash
+
+. common_functions
+
+function showUsage {
+    echo -e "\nUsage:\nundo rename filenameGlob"
+}
+
+if [ $# -lt 1 ];
+then
+  showUsage
+  exit 1
+fi  
+
+find_latest_backup_suffix 
+
+exec 3>&2
+exec 2> /dev/null
+shopt -s globstar
+for name in ${TEMPDIR}/**/*-${SUFFIX}; do 
+  DESTINATION="${name%-${SUFFIX}}"               # remove backup suffix     
+  DESTINATION="${DESTINATION##${TEMPDIR}/}"      # remove TEMPDIR 
+  DESTINATION="${PROJECT_ROOT}/${DESTINATION}"   # prepend PROJECT_ROOT
+  mv -f -- "${name}" "$DESTINATION";             # move the file
+
+done
+exec 2>&3
+
+exit 0

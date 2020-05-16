@@ -1,0 +1,21 @@
+. env
+
+function find_latest_backup_suffix {
+  pushd "$TEMPDIR"
+  exec 3>&2
+  exec 2> /dev/null
+  shopt -s globstar
+  LAST_BACKUP="$(ls **/*-*[1-9] | tail -1)"
+  exec 2>&3
+
+  if [ -z "$LAST_BACKUP" ]; then 
+    SUFFIX=0
+  else
+    OLDIFS=$IFS
+    IFS='-' 
+    read -ra NAME_PARTS <<< "$LAST_BACKUP"
+    IFS=$OLDIFS
+    SUFFIX="${NAME_PARTS[-1]}"
+  fi
+  popd
+}

@@ -1,0 +1,31 @@
+#!/bin/bash 
+
+. common_functions
+
+function showUsage {
+    echo -e "\nUsage:\nrename -f|--from fromValue -t|--to toValue -g|--glob filenameGlob"
+}
+
+if [ $# -lt 3 ];
+then
+  showUsage
+  exit 1
+fi  
+
+FROM_VALUE="$1"
+TO_VALUE="$2"
+FILENAME_GLOB=$3
+
+find_latest_backup_suffix
+
+SUFFIX=$((SUFFIX+=1))
+
+for filename in $FILENAME_GLOB; do
+  sed -i-${SUFFIX} "s/${FROM_VALUE}/${TO_VALUE}/g" "$filename"
+  TEMPFILE="${filename}-${SUFFIX}"
+  PATH_FROM_PROJECT_ROOT=$(dirname "$TEMPFILE")
+  mkdir -p "${TEMPDIR}/${PATH_FROM_PROJECT_ROOT}"
+  mv "$TEMPFILE" "${TEMPDIR}/${TEMPFILE}"
+done
+
+exit 0
